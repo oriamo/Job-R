@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Listing;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ListingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,7 +14,14 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+//to show all listings
+Route::get('/', [ListingController::class, 'index']);
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//show create form 
+Route::get('/listing/create', [ListingController::class, 'create']);
+
+//show create form 
+Route::post('/listing', [ListingController::class, 'store']);
+
+//show a single listing
+Route::get('/listing/{listing}', [ListingController::class, 'show']);
