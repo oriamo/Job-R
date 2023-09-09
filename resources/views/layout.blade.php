@@ -12,6 +12,8 @@
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
         />
+        {{-- ading the script tag for alpinejs --}}
+        <script src="//unpkg.com/alpinejs" defer></script>
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
             tailwind.config = {
@@ -32,17 +34,50 @@
                 ><img class="w-24" src="{{asset('images/logo.png')}}" alt="" class="logo"
             /></a>
             <ul class="flex space-x-6 mr-6 text-lg">
+                {{--
+                    the auth directive is a blade directive that checks if the user is logged in or not
+                    if the user is logged in, it will show the welcome message and the manage listings link
+                    if the user is not logged in, it will show the register and login links
+                    --}}
+                @auth
                 <li>
-                    <a href="register.html" class="hover:text-laravel"
+                   <span class="font-bold uppercase">
+                        Welcome {{ auth()->user()->name }}
+
+                   </span>
+                </li>
+                <li>
+                    <a href="/listing/manage" class="hover:text-laravel"
+                        ><i class="fa-solid fa-gear"></i>
+                        Manage listings</a
+                    >
+                </li>
+                {{--
+                    the logout form is used to logout the user
+                    --}}
+                <li>
+                    <form action="/logout" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" >
+                            <i class="fa-solid fa-sign-out"></i> Logout
+                        </button>
+                    </form>
+                {{--
+                    the else directive is used to show the register and login links if the user is not logged in
+                    --}}
+                @else
+                <li>
+                    <a href="/register" class="hover:text-laravel"
                         ><i class="fa-solid fa-user-plus"></i> Register</a
                     >
                 </li>
                 <li>
-                    <a href="login.html" class="hover:text-laravel"
+                    <a href="/login" class="hover:text-laravel"
                         ><i class="fa-solid fa-arrow-right-to-bracket"></i>
                         Login</a
                     >
                 </li>
+                @endauth
             </ul>
         </nav>
     </main>
@@ -61,5 +96,7 @@
                 >Post Job</a
             >
         </footer>
+        <x-flash-message />
     </body>
+    
 </html>

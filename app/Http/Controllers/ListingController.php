@@ -15,7 +15,7 @@ class ListingController extends Controller
         //tag is an array of tags/strings that are used to filter the data
         return view('listings.index', [
             'heading' => 'Latest Listings',
-            'listings' => Listing::latest()->filter(request(['tag', 'search']))->get()
+            'listings' => Listing::latest()->filter(request(['tag', 'search']))->paginate(6)
         ]);
     }
 
@@ -42,10 +42,19 @@ class ListingController extends Controller
             'company' => ['required', Rule::unique('listings', 'company')],
             'location' => 'required',
             'website' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email',  
             'tags' => 'required',
             'description' => 'required'
         ]);
+        //to check if the incoming request has a file with the name logo
+        if($request->hasFile('logo'))
+        {
+            //to store the logo in the public folder
+            //the logo will be stored in the logos folder in the public folder
+            $formFields['logo'] = $request->file('logo')->store('logos', 'public');
+        };
+        //adding the current user id to the listing as an owner 
+        $formFields['user_id'] = auth()->user()->id;
 
         //to create a new listing in the Listing table in the database
         Listing::create($formFields);
@@ -55,4 +64,71 @@ class ListingController extends Controller
         return redirect('/')->with('message', 'Listing has been added');
 
     }
+
+
+    //edit a listing
+    public function edit(Listing $listing)
+    {
+        return view('listings.edit', [
+            'listing' => $listing
+        ]);
+    }
+
+    public function Update(Request $request, Listing $listing)
+    {
+        //make sure the user is authorized to edit the listing
+        if(auth()->user()->id !== $listing->user_id)
+        {
+            abort(403, 'Unauthorized Action ');
+        }   
+        $formFields = $request->validate([
+            'title' => 'required',
+            //no need to check for duplicates since its an update and the company name might be the same
+            'company' => ['required'],
+            'location' => 'required',
+            'website' => 'required',
+            'email' => 'required|email',  
+            'tags' => 'required',
+            'description' => 'required'
+        ]);
+        //to check if the incoming request has a file with the name logo
+        if($request->hasFile('logo'))
+        {
+            //to store the logo in the public folder
+            //the logo will be stored in the logos folder in the public folder
+            $formFields['logo'] = $request->file('logo')->store('logos', 'public');
+        };
+
+        //to create a new version of listing in the Listing table in the database an dreplace the old one
+        $listing->update($formFields);
+
+        
+        //takes the user back to the previous page
+        return back()->with('message', 'Listing has been updated');
+
+    }
+
+    
+
+    //delete a listing
+    public function delete(Listing $listing)
+    {
+         //make sure the user is authorized to edit the listing
+         if(auth()->user()->id !== $listing->user_id)
+         {
+             abort(403, 'Unauthorized Action ');
+         }
+        $listing->delete();
+
+        return redirect('/')->with('message', 'Listing has been deleted');
+    }
+
+    //show user listings
+    public function manage()
+    {
+        return view('listings.manage', [
+            'listings' => auth()->user()->listings()->paginate(6)
+        ]);
+    }
+
 }

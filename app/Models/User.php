@@ -42,4 +42,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    //relationship  between the user and the listing
+    public function listings(){
+        //this says whenever a user is created it has many listings 
+        //and the user_id is the foreign key in the listings table
+        return $this->hasMany(Listing::class, 'user_id');
+    }
 }

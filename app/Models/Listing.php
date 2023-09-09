@@ -29,6 +29,13 @@ class Listing extends Model
         };
         
     }
+
+     //relationship between the user and the listing
+     public function user(){
+        //this says whenever a listing is created it belongs to a user 
+        //and the user_id is the foreign key in the listings table
+        return $this->belongsTo(User::class, 'user_id');
+    }
     
 }
 
